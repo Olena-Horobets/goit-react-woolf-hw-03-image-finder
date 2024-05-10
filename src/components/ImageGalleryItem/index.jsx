@@ -8,7 +8,7 @@ function ImageGalleryItem({ image, onCardClick }) {
   return (
     <li
       className={s.galleryCard}
-      id={image.id}
+      id={String(image.id)}
       onClick={() => onCardClick({ url: largeImageURL, alt: tags })}
     >
       <ReactSprite />

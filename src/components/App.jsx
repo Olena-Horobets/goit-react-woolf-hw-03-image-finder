@@ -59,7 +59,6 @@ export class App extends Component {
         })
         .catch(err => {
           notify(`Sorry, we couldn't find anything for you`);
-          this.resetSearchData();
           this.setState({ status: STATUS.REJECTED });
         });
     }
@@ -88,14 +87,14 @@ export class App extends Component {
     }
 
     if (status === STATUS.PENDING) {
-      return <Loader />;
+      return <Loader></Loader>;
     }
 
     if (status === STATUS.RESOLVED) {
       return (
         <>
           <ImageGallery images={images} onCardClick={this.onGalleryCardClick} />
-          {!this.isLastPage() && (
+          {!photoFinder.getILastPage() && (
             <Button
               type="button"
               className="btn"
@@ -130,13 +129,8 @@ export class App extends Component {
       })
       .catch(err => {
         notify(`Sorry, we couldn't find anything for you`);
-        this.resetSearchData();
         this.setState({ status: STATUS.REJECTED });
       });
-  };
-
-  isLastPage = () => {
-    return this.state.images.length < photoFinder.perPage;
   };
 
   // Methods for modal window

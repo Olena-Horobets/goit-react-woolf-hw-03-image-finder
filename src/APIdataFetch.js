@@ -7,6 +7,7 @@ class SearchPhotoData {
     this.#API_KEY = key;
 
     this.page = 1;
+    this.isLastPage = false;
     this.perPage = perPage;
     this.imageType = imageType;
     this.orientation = orientation;
@@ -44,9 +45,16 @@ class SearchPhotoData {
         }
         throw Error;
       })
-      .then(data => data.hits)
+      .then(data => {
+        if (data.hits.length < this.perPage) {
+          this.isLastPage = true;
+        }
+        return data.hits;
+      })
       .catch(error => error);
   }
+
+  getILastPage = () => this.isLastPage;
 }
 
 const photoFinderOptions = {

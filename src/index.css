@@ -92,8 +92,9 @@ code {
   padding: 180px 40px 60px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
+  min-height: 100vh;
 }
 
 .icon {
