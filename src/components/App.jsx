@@ -25,6 +25,8 @@ export class App extends Component {
     status: STATUS.IDLE,
     searchValue: '',
     images: [],
+    page: 1,
+    isLastPage: false,
     modal: {
       isShown: false,
       imageUrl: '',
@@ -33,26 +35,35 @@ export class App extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const prevValue = prevState.searchValue;
-    const newValue = this.state.searchValue;
+    const { searchValue, page } = this.state;
 
-    if (prevValue !== newValue) {
-      photoFinder.resetPage();
-      if (newValue === '') {
+    if (searchValue !== prevState.searchValue || page !== prevState.page) {
+      if (searchValue === '') {
         this.resetSearchData();
         return;
       }
 
       this.setState({ status: STATUS.PENDING });
       photoFinder
-        .getFetchResponse(newValue)
-        .then(response => {
+        .getFetchResponse(searchValue, page)
+        .then(({ hits, totalHits }) => {
           try {
-            if (!response.length) {
-              throw Error;
+            if (!hits.length) {
+              this.resetSearchData();
+              notify(`Sorry, we couldn't find anything for you`);
             }
-            this.setState({ images: [...response] });
-            this.setState({ status: STATUS.RESOLVED });
+            if (page === 1) {
+              this.setState({ images: [...hits] });
+            } else {
+              this.setState(({ images }) => {
+                return { images: [...images, ...hits] };
+              });
+            }
+
+            this.setState({
+              status: STATUS.RESOLVED,
+              isLastPage: Math.ceil(totalHits / 12) === page,
+            });
           } catch {
             throw Error;
           }
@@ -73,6 +84,8 @@ export class App extends Component {
     this.setState({
       searchValue: '',
       images: [],
+      page: 1,
+      isLastPage: false,
       status: STATUS.IDLE,
     });
   };
@@ -94,7 +107,7 @@ export class App extends Component {
       return (
         <>
           <ImageGallery images={images} onCardClick={this.onGalleryCardClick} />
-          {!photoFinder.getILastPage() && (
+          {!this.state.isLastPage && (
             <Button
               type="button"
               className="btn"
@@ -112,25 +125,7 @@ export class App extends Component {
   };
 
   onLoadMore = () => {
-    this.setState({ status: STATUS.PENDING });
-    const { searchValue } = this.state;
-    photoFinder.setNextPage();
-    photoFinder
-      .getFetchResponse(searchValue)
-      .then(response => {
-        try {
-          this.setState(({ images }) => {
-            return { images: [...images, ...response] };
-          });
-          this.setState({ status: STATUS.RESOLVED });
-        } catch {
-          throw Error;
-        }
-      })
-      .catch(err => {
-        notify(`Sorry, we couldn't find anything for you`);
-        this.setState({ status: STATUS.REJECTED });
-      });
+    this.setState(({ page }) => ({ page: (page += 1) }));
   };
 
   // Methods for modal window

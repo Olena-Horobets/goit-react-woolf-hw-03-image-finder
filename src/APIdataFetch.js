@@ -6,30 +6,20 @@ class SearchPhotoData {
     this.#BASE_URL = url;
     this.#API_KEY = key;
 
-    this.page = 1;
-    this.isLastPage = false;
     this.perPage = perPage;
     this.imageType = imageType;
     this.orientation = orientation;
     this.safesearch = safesearch;
   }
 
-  setNextPage = () => {
-    return (this.page += 1);
-  };
-
-  resetPage = () => {
-    this.page = 1;
-  };
-
-  getBasicFetchUrl(searchValue) {
-    return `${this.#BASE_URL}?key=${this.#API_KEY}&q=${searchValue}&page=${
-      this.page
-    }`;
+  getBasicFetchUrl(searchValue, page) {
+    return `${this.#BASE_URL}?key=${
+      this.#API_KEY
+    }&q=${searchValue}&page=${page}`;
   }
 
-  getFetchUrl(searchValue = '') {
-    const url = `${this.getBasicFetchUrl(searchValue)}&per_page=${
+  getFetchUrl(searchValue = '', page = 1) {
+    const url = `${this.getBasicFetchUrl(searchValue, page)}&per_page=${
       this.perPage
     }&image_type=${this.imageType}&orientation=${this.orientation}&safesearch=${
       this.safesearch
@@ -37,24 +27,17 @@ class SearchPhotoData {
     return url;
   }
 
-  getFetchResponse(query) {
-    return fetch(this.getFetchUrl(query))
+  getFetchResponse(query, page) {
+    return fetch(this.getFetchUrl(query, page))
       .then(res => {
         if (res.status === 200) {
           return res.json();
         }
         throw Error;
       })
-      .then(data => {
-        if (data.hits.length < this.perPage) {
-          this.isLastPage = true;
-        }
-        return data.hits;
-      })
+
       .catch(error => error);
   }
-
-  getILastPage = () => this.isLastPage;
 }
 
 const photoFinderOptions = {
