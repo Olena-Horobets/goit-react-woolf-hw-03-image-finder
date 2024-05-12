@@ -77,6 +77,7 @@ export class App extends Component {
 
   // Methods for search handling
   onSearchSubmit = searchValue => {
+    this.resetSearchData();
     this.setState({ searchValue });
   };
 
@@ -103,21 +104,21 @@ export class App extends Component {
       return <Loader></Loader>;
     }
 
-    if (status === STATUS.RESOLVED) {
-      return (
-        <>
-          <ImageGallery images={images} onCardClick={this.onGalleryCardClick} />
-          {!this.state.isLastPage && (
-            <Button
-              type="button"
-              className="btn"
-              text="Load more"
-              onClick={this.onLoadMore}
-            />
-          )}
-        </>
-      );
-    }
+    // if (status === STATUS.RESOLVED) {
+    //   return (
+    //     <>
+    //       <ImageGallery images={images} onCardClick={this.onGalleryCardClick} />
+    //       {!this.state.isLastPage && (
+    //         <Button
+    //           type="button"
+    //           className="btn"
+    //           text="Load more"
+    //           onClick={this.onLoadMore}
+    //         />
+    //       )}
+    //     </>
+    //   );
+    // }
 
     if (status === STATUS.REJECTED) {
       return <div className="reject-image"></div>;
@@ -140,7 +141,7 @@ export class App extends Component {
   };
 
   render() {
-    const { modal } = this.state;
+    const { modal, images } = this.state;
 
     return (
       <div className={modal.isShown ? 'AppFixed' : 'App'} id="App">
@@ -152,6 +153,22 @@ export class App extends Component {
             notify={notify}
             onReset={this.resetSearchData}
           />
+          {images.length > 0 && (
+            <>
+              <ImageGallery
+                images={images}
+                onCardClick={this.onGalleryCardClick}
+              />
+              {!this.state.isLastPage && (
+                <Button
+                  type="button"
+                  className="btn"
+                  text="Load more"
+                  onClick={this.onLoadMore}
+                />
+              )}
+            </>
+          )}
           {this.defineMainContent()}
         </div>
         {modal.isShown && (
